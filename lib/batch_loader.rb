@@ -4,6 +4,7 @@ require "set"
 
 require_relative "./batch_loader/version"
 require_relative "./batch_loader/executor_proxy"
+require_relative "./batch_loader/executor_complex_proxy"
 require_relative "./batch_loader/middleware"
 require_relative "./batch_loader/sidekiq_middleware"
 require_relative "./batch_loader/graphql"
@@ -138,7 +139,11 @@ class BatchLoader
   def __executor_proxy
     @__executor_proxy ||= begin
       raise NoBatchError.new("Please provide a batch block first") unless @batch_block
-      BatchLoader::ExecutorProxy.new(@default_value, @key, &@batch_block)
+      if simple_key
+        BatchLoader::ExecutorProxy.new(@default_value, @key, &@batch_block)
+      else
+        BatchLoader::ExecutorComplexProxy.new(@default_value, @key, &@batch_block)
+      end
     end
   end
 
