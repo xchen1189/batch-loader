@@ -1,6 +1,5 @@
 # BatchLoader
 
-[![Build Status](https://travis-ci.org/exAspArk/batch-loader.svg?branch=master)](https://travis-ci.org/exAspArk/batch-loader)
 [![Coverage Status](https://coveralls.io/repos/github/exAspArk/batch-loader/badge.svg)](https://coveralls.io/github/exAspArk/batch-loader)
 [![Code Climate](https://img.shields.io/codeclimate/maintainability/exAspArk/batch-loader.svg)](https://codeclimate.com/github/exAspArk/batch-loader/maintainability)
 [![Downloads](https://img.shields.io/gem/dt/batch-loader.svg)](https://rubygems.org/gems/batch-loader)
@@ -312,7 +311,39 @@ class MyProjectSchema < GraphQL::Schema
 end
 ```
 
-That's it.
+---
+
+If you need to use BatchLoader with ActiveRecord in multiple places, you can use this `preload:` helper shared by [Aha!](https://www.aha.io/engineering/articles/automatically-avoiding-graphql-n-1s):
+
+```rb
+field :user, UserType, null: false, preload: :user
+#                                   ^^^^^^^^^^^^^^
+# Simply add this instead of defining custom `user` method with BatchLoader
+```
+
+And add this custom field resolver that uses ActiveRecord's preload functionality with BatchLoader:
+
+```rb
+# app/graphql/types/base_object.rb
+field_class Types::PreloadableField
+
+# app/graphql/types/preloadable_field.rb
+class Types::PreloadableField < Types::BaseField
+  def initialize(*args, preload: nil, **kwargs, &block)
+    @preloads = preload
+    super(*args, **kwargs, &block)
+  end
+
+  def resolve(type, args, ctx)
+    return super unless @preloads
+
+    BatchLoader::GraphQL.for(type).batch(key: self) do |records, loader|
+      ActiveRecord::Associations::Preloader.new(records: records.map(&:object), associations: @preloads).call
+      records.each { |r| loader.call(r, super(r, args, ctx)) }
+    end
+  end
+end
+```
 
 ### Loading multiple items
 

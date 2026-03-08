@@ -8,9 +8,29 @@ one of the following labels: `Added`, `Changed`, `Deprecated`,
 to manage the versions of this gem so
 that you can set version constraints properly.
 
-#### [Unreleased](https://github.com/exAspArk/batch-loader/compare/v2.0.1...HEAD)
+#### [Unreleased](https://github.com/exAspArk/batch-loader/compare/v2.0.6...HEAD)
 
 * WIP
+
+#### [v2.0.6](https://github.com/exAspArk/batch-loader/compare/v2.0.5...v2.0.6) - 2025-12-09
+
+* `Fixed`: Double wrapping of `BatchLoader::GraphQL`. [#95](https://github.com/exAspArk/batch-loader/pull/95)
+
+#### [v2.0.5](https://github.com/exAspArk/batch-loader/compare/v2.0.4...v2.0.5) - 2024-04-24
+
+* `Fixed`: Warning about `BatchLoader` usage instead `BatchLoader::GraphQL` in GraphQL. [#94](https://github.com/exAspArk/batch-loader/pull/94)
+
+#### [v2.0.4](https://github.com/exAspArk/batch-loader/compare/v2.0.3...v2.0.4) - 2024-04-02
+
+* `Fixed`: Chaining `#execute_field` trace calls. [#93](https://github.com/exAspArk/batch-loader/pull/93)
+
+#### [v2.0.3](https://github.com/exAspArk/batch-loader/compare/v2.0.2...v2.0.3) - 2024-03-25
+
+* `Fixed`: `Schema.tracer(...)` GraphQL deprecation warning by making it compatible with `.trace_with(...)`. [#91](https://github.com/exAspArk/batch-loader/pull/91)
+
+#### [v2.0.2](https://github.com/exAspArk/batch-loader/compare/v2.0.1...v2.0.2) - 2023-11-22
+
+* `Fixed`: Compatibility with Ruby 3 kwargs. [#80](https://github.com/exAspArk/batch-loader/pull/80)
 
 #### [v2.0.1](https://github.com/exAspArk/batch-loader/compare/v2.0.0...v2.0.1) - 2021-02-18
 

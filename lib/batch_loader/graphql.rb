@@ -2,11 +2,20 @@
 
 class BatchLoader
   class GraphQL
+    module Trace
+      def execute_field(**_data)
+        result = super
+        result.respond_to?(:__sync) ? BatchLoader::GraphQL.wrap_with_warning(result) : result
+      end
+    end
+
     def self.use(schema_definition)
       schema_definition.lazy_resolve(BatchLoader::GraphQL, :sync)
 
       # in cases when BatchLoader is being used instead of BatchLoader::GraphQL
-      if schema_definition.respond_to?(:interpreter?) && schema_definition.interpreter?
+      if schema_definition.respond_to?(:trace_with)
+        schema_definition.trace_with(Trace)
+      elsif schema_definition.respond_to?(:interpreter?) && schema_definition.interpreter?
         schema_definition.tracer(self)
       else
         schema_definition.instrument(:field, self)
@@ -36,11 +45,15 @@ class BatchLoader
       warn "DEPRECATION WARNING: using BatchLoader.for in GraphQL is deprecated. Use BatchLoader::GraphQL.for instead or return BatchLoader::GraphQL.wrap from your resolver."
       wrap(batch_loader)
     end
-    private_class_method :wrap_with_warning
 
     def self.wrap(batch_loader)
-      BatchLoader::GraphQL.new.tap do |graphql|
-        graphql.batch_loader = batch_loader
+      case batch_loader
+      when BatchLoader::GraphQL
+        batch_loader
+      else
+        BatchLoader::GraphQL.new.tap do |graphql|
+          graphql.batch_loader = batch_loader
+        end
       end
     end
 
